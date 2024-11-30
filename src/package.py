@@ -11,6 +11,9 @@ class Package:
         self.parent = parent
         self.children = []  # List of child Packages or Modules
 
+    def __getitem__(self, index):
+        return self.children[index]
+
     @property
     def name(self):
         return self.path.split('/')[-1]
@@ -19,14 +22,18 @@ class Package:
         """Adds a child (Package or Module) to the current Package."""
         self.children.append(child)
 
-    def __str__(self):
+    def __str__(self, indent=0):
         """
         Returns a string representation of the Package, showing only direct children.
 
         Returns:
             str: The name of the package and its direct children.
         """
-        result = f"Package: {self.name}\n"
-        result += "\n".join([f"  - {child.name}" for child in self.children])
+        result = " " * indent + f"Package: {self.name}\n"
+        for child in self.children:
+            if isinstance(child, Package):
+                result += child.__str__(indent + 4)  # Recursive call with increased indentation
+            else:
+                result += " " * (indent + 4) + f"- {child.name}\n"
         return result
     __repr__ = __str__
